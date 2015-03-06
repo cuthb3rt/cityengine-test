@@ -1,0 +1,84 @@
+/**
+ * File:    myFirstBuilding.cga
+ * Created: 6 Mar 2015 16:21:58 GMT
+ * Author:  acuthbert
+ */
+
+version "2014.1"
+
+attr groundFloorHeight = 5.5
+attr upperFloorHeight = 3
+attr numFloors = rand(1,20)
+
+Footprint -->
+	set(numFloors, rint(numFloors))
+	extrude(groundFloorHeight + (numFloors -1) * upperFloorHeight)
+	split(y){groundFloorHeight: Volume("GF") | ~1: UpperFloors}
+
+UpperFloors -->
+	split(y){upperFloorHeight: Volume("UF")}*
+	
+Volume(type) -->
+	case type == "GF":
+		color(0,1,0)
+		report("GF_Area", geometry.area(bottom))
+		CreateFacade("GF")
+	else:
+		case split.index == split.total -1:
+			#color(0,0,1)
+			report("UF_Area", geometry.area(bottom))
+			comp(f){top:Roof}
+			CreateFacade("UF")
+		else:
+			#color(0,0,1)	
+			report("UF_Area", geometry.area(bottom))
+			CreateFacade("UF")
+			
+Roof -->
+	roofHip(30)
+
+attr tileWidth = 6
+
+CreateFacade(floorType) -->
+	case floorType == "UF":
+		comp(f){
+			side:
+				split(x) {~tileWidth: FacadeTile}*
+		}
+	else:
+		X.
+	
+attr windowBaseHeight = 0.9
+attr windowHeight = 1.4
+attr windowMinDim = 1.6
+attr windowWidth = 1
+attr windowDepth = 1
+
+
+FacadeTile -->
+	case scope.sx >= windowMinDim:
+		split(x){~1:Wall | windowWidth: WindowConstr | ~1: Wall}
+	else:
+		Wall
+		
+Wall -->
+	color(0.2,0.2,0.2)
+		
+WindowConstr -->
+	split(y){windowBaseHeight: Wall | windowHeight: Window | ~1: Wall}
+	
+Window -->
+	color(1,1,1,0.3)
+	t(0,0,-windowDepth)
+	extrude(windowDepth)
+	alignScopeToAxes(y)
+	comp(f){front: NIL | back: Wing	| all: X.}
+	
+	
+
+style styleA
+attr windowBaseHeight = 0.2
+attr windowHeight = 5
+attr windowMinDim = 1.6
+attr windowWidth = 5
+attr windowDepth = 0.2
