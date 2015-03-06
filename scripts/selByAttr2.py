@@ -4,9 +4,6 @@
 from scripting import *
 
 # get a CityEngine instance
-
-
-
 ce = CE()
 
 def sampleSelect(layerName, attrName, value):
@@ -20,7 +17,6 @@ def sampleSelect(layerName, attrName, value):
         if ce.sampleFloatLayerAttribute(mappingLayer, attrName, samplePos[0], samplePos[2]) >= value :
             list.append(s)
     ce.setSelection(list)
-
 
 
 if __name__ == '__main__':
